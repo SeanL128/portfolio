@@ -1,0 +1,34 @@
+# Sean Lindsay
+
+> Mostly self-taught developer and incoming CS student at the University of Pennsylvania (SEAS, Class of 2030). Builds AI-driven products and the systems behind them.
+
+## About
+
+Sean Lindsay is a mostly self-taught developer and incoming Computer Science student at the University of Pennsylvania (SEAS, Class of 2030). A first-generation college student, he builds across the stack — Swift and iOS, full-stack web, and multi-agent AI systems running on his own self-hosted infrastructure. He designed, built, and shipped Sculpty, a fitness-tracking app, to the App Store before starting college. His focus now is AI product engineering: turning models and agents into products people actually use.
+
+He is pursuing a mathematics minor and plans to submatriculate into Penn's accelerated CIS master's program.
+
+## Skills
+
+- Languages: Python, JavaScript / TypeScript, Swift, Java, PHP, SQL (MySQL)
+- Builds: iOS apps (Swift / SwiftUI), full-stack web, multi-agent / agentic AI systems, API design, self-hosted / VPS infrastructure
+
+## Projects
+
+- [Sculpty](https://apps.apple.com/us/app/sculpty-fitness-tracker/id6746368050): iPhone app for tracking workouts, nutrition, and body measurements. Swift and SwiftUI. Live on the App Store — his first shipped consumer product, designed, built, and published solo before starting college.
+- Automated Morning Brief: self-hosted daily brief system that gathers calendar, email, weather, and upcoming deadlines into a single summary delivered to Telegram every morning. Python on a VPS with a systemd timer; pulls from CalDAV, Gmail, and Open-Meteo.
+
+## Credentials
+
+- Hackathon winner
+- Placed in the HACC coding competition
+- Led his school's Computer Science Club
+- Independent study in cybersecurity, culminating in a VulnLab capstone
+- Inspirit AI Scholar
+
+## Links
+
+- Website: https://seanlindsay.xyz/
+- GitHub: https://github.com/SeanL128
+- LinkedIn: https://www.linkedin.com/in/sean-a-lindsay/
+- Email: seanlindsay2008@gmail.com

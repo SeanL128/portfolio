@@ -20,6 +20,8 @@ body {
   -webkit-font-smoothing: antialiased;
   min-height: 100vh;
   padding: var(--space) clamp(1.5rem, 7vw, 7rem);
+  /* lowercase is a visual style only — the HTML keeps real casing for crawlers */
+  text-transform: lowercase;
 }
 main {
   width: 100%;
@@ -98,6 +100,12 @@ html.building [data-build] { opacity: 0; }
   margin: .5rem 0 0;
   font-size: 1rem;
 }
+.bio {
+  margin: 0;
+  max-width: 38ch;
+  color: var(--text);
+  font-size: .95rem;
+}
 .focus {
   margin: 1rem 0 0;
   max-width: 30ch;
@@ -111,7 +119,7 @@ section { margin-top: var(--space); }
 .col-right > section:first-child .label { margin-top: .2rem; }
 .label {
   font-size: .72rem;
-  text-transform: uppercase;
+  text-transform: lowercase;
   letter-spacing: .18em;
   color: var(--accent);
   margin: 0 0 1.1rem;
@@ -139,7 +147,7 @@ section { margin-top: var(--space); }
   color: var(--muted);
   font-size: .72rem;
   letter-spacing: .1em;
-  text-transform: uppercase;
+  text-transform: lowercase;
   white-space: nowrap;
   padding-top: .1rem;
 }
