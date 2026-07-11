@@ -1,0 +1,176 @@
+:root {
+  --bg: #0d0d0c;
+  --text: #e8e6e1;
+  --muted: #7a7873;
+  --hair: #2a2926;
+  --bright: #ffffff;
+  --accent: #8a8f86; /* muted low-key gray-green; single control */
+  --space: clamp(2.25rem, 6vh, 4.5rem);
+}
+* { box-sizing: border-box; }
+html { -webkit-text-size-adjust: 100%; }
+html { overflow-x: clip; } /* pieces tow in from offscreen; never show a horizontal scrollbar */
+body {
+  margin: 0;
+  background: var(--bg);
+  color: var(--text);
+  font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
+  font-size: 17px;
+  line-height: 1.5;
+  -webkit-font-smoothing: antialiased;
+  min-height: 100vh;
+  padding: var(--space) clamp(1.5rem, 7vw, 7rem);
+}
+main {
+  width: 100%;
+  max-width: 1100px;
+  margin: 0 auto;
+  display: grid;
+  grid-template-columns: minmax(260px, 360px) minmax(0, 1fr);
+  gap: clamp(2.5rem, 6vw, 6rem);
+  align-items: start;
+}
+.col-left { position: sticky; top: var(--space); }
+
+/* Single column: kill the grid gap entirely and let every section carry the
+   same --space margin — one consistent vertical rhythm, no doubled seams.
+   (The first-child margin override lives at the end of this file so it wins
+   the cascade over the desktop margin-top: 0 rule.) */
+@media (max-width: 720px) {
+  main { grid-template-columns: 1fr; gap: 0; }
+  .col-left { position: static; }
+}
+
+/* Robot build-in entrance.
+   Content is real HTML and fully visible without JS; the .building class
+   (added synchronously by the tiny script in <head>, only when the animation
+   will actually run) hides [data-build] parts until a robot "places" them. */
+html.building [data-build] { opacity: 0; }
+.bot {
+  position: fixed;
+  top: 0; left: 0;
+  z-index: 10;
+  width: 44px;
+  height: 48px;
+  pointer-events: none;
+  will-change: transform;
+  filter: drop-shadow(0 4px 10px rgba(0,0,0,.45));
+}
+.bot svg { animation: bob 1.4s ease-in-out infinite alternate; }
+@keyframes bob {
+  from { transform: translateY(-1.5px); }
+  to   { transform: translateY(2px); }
+}
+.bot .flame {
+  transform-box: fill-box;
+  transform-origin: top center;
+  animation: flick .14s infinite alternate ease-in-out;
+}
+@keyframes flick {
+  from { transform: scaleY(1); opacity: .9; }
+  to   { transform: scaleY(.55); opacity: .6; }
+}
+.bot .bub {
+  position: absolute;
+  top: -16px; right: -14px;
+  width: 20px; height: 20px;
+  border-radius: 50% 50% 50% 4px;
+  background: var(--text);
+  color: var(--bg);
+  font: 700 13px/20px "Helvetica Neue", sans-serif;
+  text-align: center;
+  opacity: 0;
+  transform: scale(.4);
+  transition: opacity .18s ease, transform .18s cubic-bezier(.3,1.6,.5,1);
+}
+.bot.talk .bub { opacity: 1; transform: scale(1); }
+
+/* Header */
+.name {
+  font-size: clamp(2rem, 6vw, 2.75rem);
+  font-weight: 500;
+  letter-spacing: -0.02em;
+  color: var(--bright);
+  margin: 0;
+}
+.ident {
+  color: var(--muted);
+  margin: .5rem 0 0;
+  font-size: 1rem;
+}
+.focus {
+  margin: 1rem 0 0;
+  max-width: 30ch;
+  color: var(--text);
+  font-size: .95rem;
+}
+
+/* Section grammar */
+section { margin-top: var(--space); }
+.col-right > section:first-child { margin-top: 0; }
+.col-right > section:first-child .label { margin-top: .2rem; }
+.label {
+  font-size: .72rem;
+  text-transform: uppercase;
+  letter-spacing: .18em;
+  color: var(--accent);
+  margin: 0 0 1.1rem;
+  font-weight: 500;
+}
+
+/* Rows */
+.row {
+  display: flex;
+  align-items: baseline;
+  gap: 1rem;
+  padding: .95rem 0;
+  border-top: 1px solid var(--hair);
+  text-decoration: none;
+  color: inherit;
+  transition: transform .15s ease;
+}
+.row:last-child { border-bottom: 1px solid var(--hair); }
+.row:hover, .row:focus-visible { transform: translateX(4px); }
+.row:focus-visible { outline: 2px solid var(--accent); outline-offset: 4px; }
+.row .title { color: var(--bright); font-weight: 400; }
+.row .desc { color: var(--muted); font-size: .95rem; margin-top: .15rem; }
+.row .main { flex: 1; min-width: 0; }
+.row .meta {
+  color: var(--muted);
+  font-size: .72rem;
+  letter-spacing: .1em;
+  text-transform: uppercase;
+  white-space: nowrap;
+  padding-top: .1rem;
+}
+.row .arrow { color: var(--accent); transition: color .15s ease; }
+.row:hover .arrow, .row:focus-visible .arrow { color: var(--bright); }
+.status { color: var(--accent); }
+
+/* Elsewhere links — stacked in the left rail */
+.links { display: flex; flex-direction: column; gap: .6rem; }
+.links a {
+  color: var(--muted);
+  text-decoration: none;
+  transition: color .15s ease;
+}
+.links a:hover, .links a:focus-visible { color: var(--bright); }
+.links a:focus-visible { outline: 2px solid var(--accent); outline-offset: 3px; }
+.links .arrow { color: var(--accent); }
+
+.cred {
+  color: var(--text);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  columns: 2;
+  column-gap: 2rem;
+}
+.cred li { padding: .3rem 0; break-inside: avoid; }
+.cred li::before { content: "— "; color: var(--muted); }
+@media (max-width: 460px) { .cred { columns: 1; } }
+
+/* Single-column rhythm override — last so it beats the desktop rule above. */
+@media (max-width: 720px) {
+  .col-right > section:first-child { margin-top: var(--space); }
+}
