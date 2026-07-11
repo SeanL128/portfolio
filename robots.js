@@ -10,12 +10,6 @@
   var SETTLE_MS  = 3400;  // initial batch is done by here (built flag, straggler)
   var BOT_W      = 44, BOT_H = 48; // px; matches .bot CSS
   var STRAGGLER_DELAY = 1100;      // ms after settle before the late robot shows
-  // Debug: ?slow=4 runs everything 4x slower for dialing in.
-  var slowM = location.search.match(/slow=(\d+)/);
-  if (slowM) {
-    var f = +slowM[1];
-    STAGGER_MS *= f; TOW_MS *= f; EXIT_MS *= f; SETTLE_MS *= f; STRAGGLER_DELAY *= f;
-  }
   // -------------------------------------------------------------------------
 
   // Robot look: gradient capsule body, glowing visor eyes, blinking antenna,
@@ -211,19 +205,10 @@
   }, { threshold: .12 });
   targets.forEach(function (t) { io.observe(t); });
 
-  // Debug: ?freeze=800 pauses the whole scene at t=800ms for inspection.
-  var freeze = location.search.match(/freeze=(\d+)/);
-  if (freeze) {
-    setTimeout(function () {
-      document.getAnimations().forEach(function (a) { a.pause(); a.currentTime = +freeze[1]; });
-    }, 80);
-    return;
-  }
-
   // Repeat views this session skip the show (per-piece watchdogs above are
   // the safety net; there's no global cutoff since scroll drives late tows).
   setTimeout(function () {
-    if (!slowM) try { sessionStorage.setItem("built", "1"); } catch (e) {}
+    try { sessionStorage.setItem("built", "1"); } catch (e) {}
   }, SETTLE_MS);
 
   // The straggler: one late robot hauls in a crate, finds the page already
