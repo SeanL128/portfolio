@@ -16,6 +16,7 @@ He is pursuing a mathematics minor and plans to submatriculate into Penn's accel
 ## Projects
 
 - [Sculpty](https://apps.apple.com/us/app/sculpty-fitness-tracker/id6746368050): iPhone app for tracking workouts, nutrition, and body measurements. Swift and SwiftUI. Live on the App Store — his first shipped consumer product, designed, built, and published solo before starting college.
+- [Blueprint Forge](https://seanlindsay.xyz/blueprint-forge): Claude Code plugin that plans work as reviewable blueprints behind hard interview and approval gates, then routes the build to cheaper models (including GPT via Codex CLI) against a resumable ledger. Blind-validated and benchmarked across 20+ graded runs; MIT, released on GitHub.
 - Automated Morning Brief: self-hosted daily brief system that gathers calendar, email, weather, and upcoming deadlines into a single summary delivered to Telegram every morning. Python on a VPS with a systemd timer; pulls from CalDAV, Gmail, and Open-Meteo.
 
 ## Credentials
