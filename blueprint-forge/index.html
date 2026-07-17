@@ -4,7 +4,7 @@
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
 <title>Blueprint Forge — blueprint-driven builds for Claude Code · Sean Lindsay</title>
-<meta name="description" content="A Claude Code plugin that plans work as reviewable blueprints behind hard interview gates, then routes the build to cheaper models against a resumable ledger." />
+<meta name="description" content="A Claude Code plugin for using the most powerful frontier models while you still have them: batch-create blueprints once, then let cheaper models build them cold months from now." />
 <style>
   :root {
     --bg: #0d0d0c;
@@ -13,7 +13,7 @@
     --hair: #2a2926;
     --bright: #ffffff;
     --accent: #8a8f86; /* single muted control — never add a second accent */
-    --space: clamp(2.5rem, 6vh, 4.5rem);
+    --space: clamp(2.25rem, 6vh, 4.5rem);
   }
   * { box-sizing: border-box; }
   html { -webkit-text-size-adjust: 100%; }
@@ -82,15 +82,15 @@
   <header>
     <h1 class="name">Blueprint Forge</h1>
     <p class="ident">claude code plugin · three skills · markdown blueprints</p>
-    <p class="lede">Spend your most powerful model while you still have it on interviewing and blueprinting, so the cheaper models you'll still have next month can build it cold — at basically the same quality.</p>
+    <p class="lede">A skill suite aimed at helping you use the most powerful frontier models while you still have them: batch-create blueprints once, then let the cheaper models you'll still have later build them cold at just about the same quality.</p>
     <p class="status-line">v1.3.0 · MIT · <span class="status">released</span></p>
   </header>
 
   <section aria-labelledby="why-label">
     <h2 class="label" id="why-label">Why it exists</h2>
-    <p>You can't trust that the powerful model you have today will still be there next week when you actually want to build — watching Claude Fable get pulled from the market made that concrete. Blueprint Forge spends the big model while you still have it on the part only it can do well: interviewing you about every ambiguity and writing self-contained blueprints. Those blueprints and their run-order ledger live in your repo, so any cheaper model you still have access to can execute them cold, as far into the future as you want, at basically the same quality — every decision was already made and written down.</p>
-    <p>The interview is the other half. Every autonomous run eventually hits an ambiguous spec and resolves it with a coin flip; in my blind benchmarks (20+ graded runs) the hard interview stop caught every planted ambiguity (8/8 runs), while plain sessions asked zero questions and advisory gates self-waived under autonomous dispatch (5/5).</p>
-    <p><strong>The honest caveat:</strong> blueprints are easily invalidated by a pivot. Use the split path only when the project's direction is certain and the decisions are made — all that's left is the building. If that's not true yet, use <code>blueprint-oneshot</code> for the one task in front of you, or settle the direction in a separate session first and blueprint after.</p>
+    <p>After the US Government blocked users from using Fable 5 for almost three weeks, it showed that you can't assume that the high-tier model you have today will be there a week from now when you want to actually build the thing you have planned. This suite helps alleviate that problem by allowing you to batch-create blueprints once that are descriptive enough for cheaper models to follow months from now to create a result that is just about as good as if the high-tier model wrote it. The blueprinting process also accounts for the run order so that every blueprint is building off of what will exist when it is reached rather than simply what exists when it is created.</p>
+    <p>The interview is the other half. Every autonomous run eventually hits an ambiguous spec and resolves it with a coin flip, and in my blind benchmarks across 20+ graded runs, the hard interview stop caught every planted ambiguity in 8/8 runs while plain sessions asked zero questions and advisory gates self-waived under autonomous dispatch in 5/5.</p>
+    <p>There are, however, two caveats that are important to understand before using this. First, making any pivot in the project and its end state will likely invalidate any unused blueprints, so it is important that before blueprinting, you decide on a direction that you are 100% certain of, or you only blueprint up to a point that you are 100% certain of, else you risk wasting premium tokens on blueprints that may be invalidated. Second, this process is costlier and does not always ensure equal quality when compared to just using the high-tier model, though it can get close. That cost can be spread out across multiple sessions and even multiple subscriptions; I personally have the builder agents set to be GPT&nbsp;5.6 models that run through headless Codex sessions.</p>
   </section>
 
   <section aria-labelledby="start-label">
@@ -98,58 +98,63 @@
     <pre><code><span class="c"># in Claude Code — the repo is the plugin and its own marketplace</span>
 /plugin marketplace add SeanL128/blueprint-forge
 /plugin install blueprint-forge@blueprint-forge</code></pre>
-    <p>Or send Claude the repo and have it install the skills. First run bootstraps a <code>blueprints/</code> folder in your repo with a <code>MODELS.md</code> routing map and a <code>RUN-ORDER.md</code> ledger.</p>
-  </section>
-
-  <section aria-labelledby="skills-label">
-    <h2 class="label" id="skills-label">The skills</h2>
-    <p>Two ways in. All are user-invoked only — Claude never triggers them on its own, because they deliberately spend premium planning-model tokens.</p>
+    <p>First run bootstraps a <code>blueprints/</code> folder in your repo with a <code>MODELS.md</code> routing map and a <code>RUN-ORDER.md</code> ledger. Three skills, all user-invoked only, because they deliberately spend premium planning-model tokens, so Claude never triggers them on its own.</p>
     <ul class="rows">
       <li>
         <span class="main">
           <span class="title"><code>blueprint-oneshot</code></span>
-          <span class="desc">One task end to end: interview → blueprint → your approval → autonomous build + review. Two hard stops, then hands-off.</span>
+          <span class="desc">One task end to end: interview, blueprint, your approval, then an autonomous build and review. Two hard stops, then hands-off.</span>
         </span>
         <span class="meta">oneshot</span>
       </li>
       <li>
         <span class="main">
           <span class="title"><code>blueprint-backlog</code></span>
-          <span class="desc">Turn a backlog/TODO into blueprints — approve, revise, or reject each — plus a run-order ledger where every item assumes the state the previous ones leave behind.</span>
+          <span class="desc">Turns a backlog or TODO into blueprints, each approved, revised, or rejected by you, plus a run-order ledger where every item assumes the state the previous ones leave behind.</span>
         </span>
         <span class="meta">split · 1</span>
       </li>
       <li>
         <span class="main">
           <span class="title"><code>blueprint-implement</code></span>
-          <span class="desc">Build one approved blueprint: dispatch its builder subagents, review the result against it, route ship / fix here / re-dispatch / re-blueprint.</span>
+          <span class="desc">Builds one approved blueprint: dispatches its builder subagents, reviews the result against it, then routes ship / fix here / re-dispatch / re-blueprint.</span>
         </span>
         <span class="meta">split · 2</span>
       </li>
     </ul>
   </section>
 
-  <section aria-labelledby="routing-label">
-    <h2 class="label" id="routing-label">Model routing</h2>
-    <p>Blueprints name <strong>roles</strong>, never model IDs. <code>blueprints/MODELS.md</code> maps each role to a model for the harness in play — the default is a Claude split, and an optional per-role dispatch command column can send builds to another harness entirely. The split I run daily: Claude blueprints and reviews, GPT-5.6 builders via Codex CLI — building burns most of the tokens, so a separate $20 ChatGPT subscription absorbs them and Claude usage limits barely move. The worked map ships in the repo's <a class="inline" href="https://github.com/SeanL128/blueprint-forge#the-split-i-actually-run-claude-blueprints-gpt-builds">README</a>.</p>
+  <section aria-labelledby="config-label">
+    <h2 class="label" id="config-label">Configuration</h2>
+    <p>Blueprints name <strong>roles</strong>, never model IDs, and <code>blueprints/MODELS.md</code> maps each role to a model for the harness in play. The default is an all-Claude split, and an optional per-role dispatch command column can send builds to another harness entirely. The split I run daily keeps blueprinting and review on Claude while GPT-5.6 builders run through headless Codex sessions, since building burns most of the tokens and a separate $20 ChatGPT subscription absorbs them; the worked map ships in the repo's <a class="inline" href="https://github.com/SeanL128/blueprint-forge#the-split-i-actually-run-claude-blueprints-gpt-builds">README</a>.</p>
     <ul class="rows">
-      <li><span class="main"><span class="title">blueprinter</span><span class="desc">writes the backlog and blueprints; where the interview happens</span></span><span class="meta">premium</span></li>
-      <li><span class="main"><span class="title">builder-light / standard / heavy</span><span class="desc">execute blueprints cold, cheapest tier that can build the item well</span></span><span class="meta">cheap → mid</span></li>
-      <li><span class="main"><span class="title">reviewer</span><span class="desc">checks the diff against the blueprint's definition of done</span></span><span class="meta">independent</span></li>
+      <li><span class="main"><span class="title">blueprinter</span><span class="desc">grounds, interviews, writes and approves blueprints; the judgment layer</span></span><span class="meta">premium</span></li>
+      <li><span class="main"><span class="title">implementer</span><span class="desc">runs the implement session: dispatches builders, runs verify commands, keeps the ledger</span></span><span class="meta">mid</span></li>
+      <li><span class="main"><span class="title">builder-light / standard / heavy</span><span class="desc">execute blueprints cold, at the cheapest tier that can build the item well</span></span><span class="meta">cheap → mid</span></li>
+      <li><span class="main"><span class="title">reviewer / reviewer-heavy</span><span class="desc">checks the diff against the blueprint's definition of done, escalating on risk</span></span><span class="meta">independent</span></li>
     </ul>
   </section>
 
   <section aria-labelledby="how-label">
     <h2 class="label" id="how-label">How it works</h2>
-    <p>A blueprint is a self-contained markdown file written for a builder that starts cold, works alone, and cannot ask questions — if a fact isn't in the file or the repo, it doesn't exist for the builder. Each carries its builder role, grounding references, dependencies, starting state, a definition-of-done checklist, and reviewer notes. The ledger tracks a closed status vocabulary, and an item is only checked off once review passes — which makes the whole plan resumable across sessions, days, or models.</p>
-    <p>Every skill was built test-first against blind baseline runs (watching what context-free agents do wrong without the skill, then gating exactly that), and the suite was benchmarked across 20+ graded runs on toy and ~350-file repos before release.</p>
+    <p>A blueprint is a self-contained markdown file written for a builder that starts cold, works alone, and cannot ask questions, so if a fact isn't in the file or the repo, it doesn't exist for the builder. Each carries its builder role, grounding references, dependencies, starting state, a definition-of-done checklist, and reviewer notes. The ledger tracks a closed status vocabulary, and an item is only checked off once review passes, which makes the whole plan resumable across sessions, days, or models.</p>
+    <p>Every skill was built test-first against blind baseline runs, watching what context-free agents do wrong without the skill and then gating exactly that, and the suite was benchmarked across 20+ graded runs on toy and ~350-file repos before release.</p>
+  </section>
+
+  <section aria-labelledby="status-label">
+    <h2 class="label" id="status-label">Status &amp; roadmap</h2>
+    <p>Blueprint Forge is released and is the process I use daily for my own projects, but there are more updates that are planned for the future.</p>
+    <ul class="rows">
+      <li><span class="main"><span class="title">Oneshot and split paths, benchmarked blind before release</span></span><span class="meta done">Done</span></li>
+      <li><span class="main"><span class="title">Worked Claude + GPT split via Codex dispatch commands</span></span><span class="meta done">Done</span></li>
+    </ul>
   </section>
 
   <section aria-labelledby="notes-label">
     <h2 class="label" id="notes-label">What I learned / what broke</h2>
-    <p>Advisory process gates don't survive autonomy. Every suite I tested that <em>recommends</em> asking questions waived its own gate the moment it ran headless — five out of five. Only a hard stop-and-wait held, and building that took writing skills test-first against blind baseline runs rather than writing rules and hoping.</p>
-    <p>Blind graders penalize negotiated answers. The resolution the user actually chose in an interview can grade <em>worse</em> than the guess a judge would have made — the suite's value shows up in variance, not means, which changed how I position it: insurance, not a quality upgrade.</p>
-    <p>The economics only work with routing. Pinned to one premium model the pipeline costs 3–4× a plain session; arbitraging build tokens to cheaper builders cut the premium to 1.5×.</p>
+    <p>Advisory process gates don't survive autonomy. Every suite I tested that <em>recommends</em> asking questions waived its own gate the moment it ran headless, five out of five, and only a hard stop-and-wait held. Building that took writing skills test-first against blind baseline runs rather than writing rules and hoping.</p>
+    <p>Blind graders penalize negotiated answers. The resolution the user actually chose in an interview can grade <em>worse</em> than the guess a judge would have made, so the suite's value shows up in variance, not means, which changed how I position it: insurance, not a quality upgrade.</p>
+    <p>The economics only work with routing. Pinned to one premium model, the pipeline costs 3 to 4 times a plain session, and arbitraging build tokens to cheaper builders cut the premium to about 1.5 times.</p>
   </section>
 
   <footer>
