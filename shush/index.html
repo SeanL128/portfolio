@@ -1,0 +1,149 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>shush — turn down model verbosity without losing substance · Sean Lindsay</title>
+<meta name="description" content="A Claude Code plugin that cuts model over-explanation by selecting which sentences exist, never compressing grammar." />
+<style>
+  :root {
+    --bg: #0d0d0c;
+    --text: #e8e6e1;
+    --muted: #7a7873;
+    --hair: #2a2926;
+    --bright: #ffffff;
+    --accent: #8a8f86; /* single muted control — never add a second accent */
+    --space: clamp(2.5rem, 6vh, 4.5rem);
+  }
+  * { box-sizing: border-box; }
+  html { -webkit-text-size-adjust: 100%; }
+  body {
+    margin: 0;
+    background: var(--bg);
+    color: var(--text);
+    font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
+    font-size: 17px;
+    line-height: 1.5;
+    -webkit-font-smoothing: antialiased;
+    padding: var(--space) clamp(2rem, 8vw, 7rem);
+  }
+  main { width: 100%; max-width: 720px; margin: 0 auto; }
+
+  .fade { opacity: 0; transform: translateY(6px); animation: rise .5s ease forwards; }
+  @keyframes rise { to { opacity: 1; transform: none; } }
+  @media (prefers-reduced-motion: reduce) { .fade { opacity: 1; transform: none; animation: none; } }
+
+  .back { display: inline-block; color: var(--muted); text-decoration: none; font-size: .82rem; letter-spacing: .04em; margin-bottom: var(--space); transition: color .15s ease; }
+  .back:hover, .back:focus-visible { color: var(--bright); }
+  .back:focus-visible { outline: 2px solid var(--accent); outline-offset: 3px; }
+  .back .arrow { color: var(--accent); }
+
+  .name { font-size: clamp(2rem, 6vw, 2.75rem); font-weight: 500; letter-spacing: -0.02em; color: var(--bright); margin: 0; }
+  .ident { color: var(--muted); margin: .5rem 0 0; font-size: 1rem; }
+  .lede { margin: 1.1rem 0 0; max-width: 52ch; color: var(--text); font-size: 1.02rem; }
+  .status-line { margin: 1.1rem 0 0; font-size: .82rem; letter-spacing: .04em; color: var(--muted); }
+  .status-line .status { color: var(--accent); }
+
+  section { margin-top: var(--space); }
+  .label { font-size: .72rem; text-transform: uppercase; letter-spacing: .18em; color: var(--accent); margin: 0 0 1.1rem; font-weight: 500; }
+
+  p { margin: 0 0 1rem; max-width: 60ch; }
+  p:last-child { margin-bottom: 0; }
+  a.inline { color: var(--text); text-decoration: none; border-bottom: 1px solid var(--hair); transition: border-color .15s ease, color .15s ease; }
+  a.inline:hover, a.inline:focus-visible { color: var(--bright); border-color: var(--accent); }
+  a.inline:focus-visible { outline: 2px solid var(--accent); outline-offset: 3px; }
+  strong { color: var(--bright); font-weight: 500; }
+
+  .rows { margin: 0; padding: 0; list-style: none; }
+  .rows li { display: flex; align-items: baseline; gap: 1rem; padding: .95rem 0; border-top: 1px solid var(--hair); }
+  .rows li:last-child { border-bottom: 1px solid var(--hair); }
+  .rows .main { flex: 1; min-width: 0; }
+  .rows .title { color: var(--bright); font-weight: 400; }
+  .rows .desc { color: var(--muted); font-size: .95rem; margin-top: .15rem; display: block; }
+  .rows .meta { color: var(--muted); font-size: .72rem; letter-spacing: .1em; text-transform: uppercase; white-space: nowrap; padding-top: .1rem; }
+  .rows .meta.done { color: var(--accent); }
+
+  code { font-family: "SF Mono", ui-monospace, Menlo, Consolas, monospace; font-size: .86em; color: var(--text); }
+  pre { margin: 0 0 1rem; padding: 1.1rem 1.25rem; border: 1px solid var(--hair); overflow-x: auto; background: transparent; }
+  pre code { font-size: .82rem; line-height: 1.7; color: var(--text); }
+  pre .c { color: var(--muted); }
+
+  footer { margin-top: var(--space); padding-top: 1.1rem; border-top: 1px solid var(--hair); color: var(--muted); font-size: .9rem; }
+  footer a { color: var(--muted); text-decoration: none; transition: color .15s ease; }
+  footer a:hover, footer a:focus-visible { color: var(--bright); }
+</style>
+</head>
+<body>
+<main class="fade">
+  <a class="back" href="https://seanlindsay.xyz"><span class="arrow" aria-hidden="true">←</span> Sean Lindsay</a>
+
+  <header>
+    <h1 class="name">shush</h1>
+    <p class="ident">Claude Code plugin · skill + session-start hook</p>
+    <p class="lede">Turns down a model's verbosity without losing substance. It cuts which sentences exist, never the grammar they are written in, so responses get shorter while warnings, tradeoffs, and failing output always survive.</p>
+    <p class="status-line">v0.1.0 · MIT · <span class="status">early, built and pre-release, not yet tested from a public marketplace</span></p>
+  </header>
+
+  <section aria-labelledby="why-label">
+    <h2 class="label" id="why-label">Why it exists</h2>
+    <p>I made shush because I was tired of models like Opus 4.8 writing a paragraph to explain a one line edit and narrating every tool call along the way. I tried caveman-style modes that compress <strong>grammar</strong> by dropping articles and writing in fragments, but I came to the realization that they sometimes increased my token usage through rereads and follow-up questions, and they didn't always activate when they should have. Shush inverts the approach and <strong>selects rather than compresses</strong>: one test governs every sentence the model writes, which is whether removing it would change what the reader does or believes next, and if it wouldn't, it never gets written.</p>
+  </section>
+
+  <section aria-labelledby="start-label">
+    <h2 class="label" id="start-label">Quick start</h2>
+    <pre><code><span class="c"># inside Claude Code</span>
+/plugin marketplace add SeanL128/shush
+/plugin install shush@shush</code></pre>
+    <p>A session-start hook keeps shush active in every session automatically, with no CLAUDE.md edits needed. Turn it off with <code>stop shush</code>.</p>
+  </section>
+
+  <section aria-labelledby="config-label">
+    <h2 class="label" id="config-label">Configuration</h2>
+    <ul class="rows">
+      <li>
+        <span class="main"><span class="title"><code>/shush lite</code></span><span class="desc">Cuts preamble, narration, and postamble only; explanations stay.</span></span>
+        <span class="meta">level</span>
+      </li>
+      <li>
+        <span class="main"><span class="title"><code>/shush full</code></span><span class="desc">The sentence test enforced on every line. Default.</span></span>
+        <span class="meta">level</span>
+      </li>
+      <li>
+        <span class="main"><span class="title"><code>/shush ultra</code></span><span class="desc">One sentence if one suffices; detail on request. Quality floor still holds.</span></span>
+        <span class="meta">level</span>
+      </li>
+      <li>
+        <span class="main"><span class="title"><code>stop shush</code></span><span class="desc">Reverts to normal output until re-enabled.</span></span>
+        <span class="meta">off switch</span>
+      </li>
+    </ul>
+  </section>
+
+  <section aria-labelledby="how-label">
+    <h2 class="label" id="how-label">How it works</h2>
+    <p>There are two pieces. A <strong>skill</strong> carries the full ruleset, covering what to delete on sight (preamble, tool-call narration, unrequested explanation, and option tours) alongside a hard quality floor of things that are never cut, which includes destructive-action warnings, failing test output, the key tradeoff at a decision point, and anything explicitly asked for. A <strong>SessionStart hook</strong> then injects a distilled version of that ruleset into every session's context, and that is what makes it reliably always on, as description-based skill matching alone fires inconsistently.</p>
+  </section>
+
+  <section aria-labelledby="status-label">
+    <h2 class="label" id="status-label">Status &amp; roadmap</h2>
+    <p>Shush is built and working locally, but there are steps that remain before it is something I would call released.</p>
+    <ul class="rows">
+      <li><span class="main"><span class="title">Skill + always-on session hook</span></span><span class="meta done">Done</span></li>
+      <li><span class="main"><span class="title">Plugin packaging (plugin.json, marketplace.json)</span></span><span class="meta done">Done</span></li>
+      <li><span class="main"><span class="title">Public repo + marketplace install tested</span></span><span class="meta">In progress</span></li>
+      <li><span class="main"><span class="title">Tuning the quality floor against real Opus sessions</span></span><span class="meta">Planned</span></li>
+    </ul>
+  </section>
+
+  <section aria-labelledby="notes-label">
+    <h2 class="label" id="notes-label">What I learned / what broke</h2>
+    <p>Compression and selection turned out to be different levers. Grammar compression reads as cheaper but isn't, because mangled prose forces clarifying turns that cost more than the articles it saved, while cutting whole sentences that carry no decision weight is the lever that actually reduces tokens.</p>
+    <p>The second lesson was about activation. A skill's description matching is too flaky to carry an always-on behavior, and in more instances than I could count a mode like this simply would not fire when it should have, so the reliable pattern is a SessionStart hook that injects the mode directly into context.</p>
+  </section>
+
+  <footer>
+    Built by Sean Lindsay · <a href="https://seanlindsay.xyz">seanlindsay.xyz</a> · <a href="https://github.com/SeanL128/shush">Repo</a> · MIT
+  </footer>
+</main>
+</body>
+</html>
