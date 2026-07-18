@@ -82,7 +82,7 @@
   <header>
     <h1 class="name">Blueprint Forge</h1>
     <p class="ident">claude code plugin · three skills · markdown blueprints</p>
-    <p class="lede">A skill suite aimed at helping you use the most powerful frontier models while you still have them: batch-create blueprints once, then let the cheaper models you'll still have later build them cold at just about the same quality.</p>
+    <p class="lede">A skill suite aimed at helping you use the most powerful frontier models while you still have them: your strongest model interviews you and writes reviewable blueprints once, then the cheaper models you'll still have later build them cold.</p>
     <p class="status-line">v1.3.0 · MIT · <span class="status">released</span></p>
   </header>
 
@@ -98,7 +98,7 @@
     <pre><code><span class="c"># in Claude Code — the repo is the plugin and its own marketplace</span>
 /plugin marketplace add SeanL128/blueprint-forge
 /plugin install blueprint-forge@blueprint-forge</code></pre>
-    <p>First run bootstraps a <code>blueprints/</code> folder in your repo with a <code>MODELS.md</code> routing map and a <code>RUN-ORDER.md</code> ledger. Three skills, all user-invoked only, because they deliberately spend premium planning-model tokens, so Claude never triggers them on its own.</p>
+    <p>The first run bootstraps a <code>blueprints/</code> folder in your repo with a <code>MODELS.md</code> routing map and a <code>RUN-ORDER.md</code> ledger. Three skills, all user-invoked only, because they deliberately spend premium planning-model tokens, so Claude never triggers them on its own.</p>
     <ul class="rows">
       <li>
         <span class="main">
@@ -126,7 +126,7 @@
 
   <section aria-labelledby="config-label">
     <h2 class="label" id="config-label">Configuration</h2>
-    <p>Blueprints name <strong>roles</strong>, never model IDs, and <code>blueprints/MODELS.md</code> maps each role to a model for the harness in play. The default is an all-Claude split, and an optional per-role dispatch command column can send builds to another harness entirely. The split I run daily keeps blueprinting and review on Claude while GPT-5.6 builders run through headless Codex sessions, since building burns most of the tokens and a separate $20 ChatGPT subscription absorbs them; the worked map ships in the repo's <a class="inline" href="https://github.com/SeanL128/blueprint-forge#the-split-i-actually-run-claude-blueprints-gpt-builds">README</a>.</p>
+    <p>Blueprints name <strong>roles</strong>, never model IDs, and <code>blueprints/MODELS.md</code> maps each role to a model for the harness in play. The default is an all-Claude split, and an optional per-role dispatch command column can send builds to another harness entirely. The split I run daily keeps blueprinting and review on Claude while GPT-5.6 builders run through headless Codex sessions, since building burns most of the tokens and a separate $20 ChatGPT subscription absorbs them; the worked map lives in the repo's <a class="inline" href="https://github.com/SeanL128/blueprint-forge/blob/main/docs/USAGE.md">usage doc</a>.</p>
     <ul class="rows">
       <li><span class="main"><span class="title">blueprinter</span><span class="desc">grounds, interviews, writes and approves blueprints; the judgment layer</span></span><span class="meta">premium</span></li>
       <li><span class="main"><span class="title">implementer</span><span class="desc">runs the implement session: dispatches builders, runs verify commands, keeps the ledger</span></span><span class="meta">mid</span></li>
@@ -146,7 +146,8 @@
     <p>Blueprint Forge is released and is the process I use daily for my own projects, but there are more updates that are planned for the future.</p>
     <ul class="rows">
       <li><span class="main"><span class="title">Oneshot and split paths, benchmarked blind before release</span></span><span class="meta done">Done</span></li>
-      <li><span class="main"><span class="title">Worked Claude + GPT split via Codex dispatch commands</span></span><span class="meta done">Done</span></li>
+      <li><span class="main"><span class="title">Worked Claude + GPT split via per-role Codex dispatch commands</span></span><span class="meta done">Done</span></li>
+      <li><span class="main"><span class="title">Plugin packaging, with the repo as its own marketplace</span></span><span class="meta done">Done</span></li>
     </ul>
   </section>
 
