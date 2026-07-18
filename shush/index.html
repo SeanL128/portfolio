@@ -13,7 +13,7 @@
     --hair: #2a2926;
     --bright: #ffffff;
     --accent: #8a8f86; /* single muted control — never add a second accent */
-    --space: clamp(2.5rem, 6vh, 4.5rem);
+    --space: clamp(2.25rem, 6vh, 4.5rem);
   }
   * { box-sizing: border-box; }
   html { -webkit-text-size-adjust: 100%; }
@@ -29,6 +29,7 @@
   }
   main { width: 100%; max-width: 720px; margin: 0 auto; }
 
+  /* Entrance: whole page rises once, skipped under reduced-motion. Garnish, never a gate. */
   .fade { opacity: 0; transform: translateY(6px); animation: rise .5s ease forwards; }
   @keyframes rise { to { opacity: 1; transform: none; } }
   @media (prefers-reduced-motion: reduce) { .fade { opacity: 1; transform: none; animation: none; } }
@@ -45,7 +46,7 @@
   .status-line .status { color: var(--accent); }
 
   section { margin-top: var(--space); }
-  .label { font-size: .72rem; text-transform: uppercase; letter-spacing: .18em; color: var(--accent); margin: 0 0 1.1rem; font-weight: 500; }
+  .label { font-size: .72rem; text-transform: lowercase; letter-spacing: .18em; color: var(--accent); margin: 0 0 1.1rem; font-weight: 500; } /* lowercase matches the live site's label grammar */
 
   p { margin: 0 0 1rem; max-width: 60ch; }
   p:last-child { margin-bottom: 0; }
@@ -54,17 +55,18 @@
   a.inline:focus-visible { outline: 2px solid var(--accent); outline-offset: 3px; }
   strong { color: var(--bright); font-weight: 500; }
 
+  /* Rows — the portfolio's list grammar, reused for config keys / steps / roadmap. NOT cards. */
   .rows { margin: 0; padding: 0; list-style: none; }
   .rows li { display: flex; align-items: baseline; gap: 1rem; padding: .95rem 0; border-top: 1px solid var(--hair); }
   .rows li:last-child { border-bottom: 1px solid var(--hair); }
   .rows .main { flex: 1; min-width: 0; }
   .rows .title { color: var(--bright); font-weight: 400; }
   .rows .desc { color: var(--muted); font-size: .95rem; margin-top: .15rem; display: block; }
-  .rows .meta { color: var(--muted); font-size: .72rem; letter-spacing: .1em; text-transform: uppercase; white-space: nowrap; padding-top: .1rem; }
+  .rows .meta { color: var(--muted); font-size: .72rem; letter-spacing: .1em; text-transform: lowercase; white-space: nowrap; padding-top: .1rem; }
   .rows .meta.done { color: var(--accent); }
 
   code { font-family: "SF Mono", ui-monospace, Menlo, Consolas, monospace; font-size: .86em; color: var(--text); }
-  pre { margin: 0 0 1rem; padding: 1.1rem 1.25rem; border: 1px solid var(--hair); overflow-x: auto; background: transparent; }
+  pre { margin: 0 0 1rem; padding: 1.1rem 1.25rem; border: 1px solid var(--hair); overflow-x: auto; background: transparent; } /* hairline rule, no radius, transparent — the one sanctioned box */
   pre code { font-size: .82rem; line-height: 1.7; color: var(--text); }
   pre .c { color: var(--muted); }
 
@@ -128,10 +130,10 @@
     <h2 class="label" id="status-label">Status &amp; roadmap</h2>
     <p>Shush is released and installable from the public marketplace. Ongoing work is tuning the quality floor against real sessions.</p>
     <ul class="rows">
-      <li><span class="main"><span class="title">Skill + always-on session hook</span></span><span class="meta done">Done</span></li>
-      <li><span class="main"><span class="title">Plugin packaging (plugin.json, marketplace.json)</span></span><span class="meta done">Done</span></li>
-      <li><span class="main"><span class="title">Public repo + marketplace install tested</span></span><span class="meta done">Done</span></li>
-      <li><span class="main"><span class="title">Tuning the quality floor against real Opus sessions</span></span><span class="meta">Ongoing</span></li>
+      <li><span class="main"><span class="title">Selection-over-compression skill with intensity levels</span></span><span class="meta done">Done</span></li>
+      <li><span class="main"><span class="title">Always-on SessionStart hook</span></span><span class="meta done">Done</span></li>
+      <li><span class="main"><span class="title">Plugin packaging and public marketplace install</span></span><span class="meta done">Done</span></li>
+      <li><span class="main"><span class="title">Tuning the quality floor against real sessions</span></span><span class="meta">Planned</span></li>
     </ul>
   </section>
 
