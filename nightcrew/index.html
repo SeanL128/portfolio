@@ -1,0 +1,195 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Nightcrew — a spec-to-PR build agent where no PR ships unverified · Sean Lindsay</title>
+<meta name="description" content="An autonomous overnight build agent that hard-blocks every pull request behind a verification gate: an independent test re-run, a tamper check, and a cross-family evidence judge." />
+<style>
+  :root {
+    --bg: #0d0d0c;
+    --text: #e8e6e1;
+    --muted: #7a7873;
+    --hair: #2a2926;
+    --bright: #ffffff;
+    --accent: #8a8f86; /* single muted control — never add a second accent */
+    --space: clamp(2.25rem, 6vh, 4.5rem);
+  }
+  * { box-sizing: border-box; }
+  html { -webkit-text-size-adjust: 100%; }
+  body {
+    margin: 0;
+    background: var(--bg);
+    color: var(--text);
+    font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
+    font-size: 17px;
+    line-height: 1.5;
+    -webkit-font-smoothing: antialiased;
+    padding: var(--space) clamp(2rem, 8vw, 7rem);
+  }
+  main { width: 100%; max-width: 720px; margin: 0 auto; }
+
+  .fade { opacity: 0; transform: translateY(6px); animation: rise .5s ease forwards; }
+  @keyframes rise { to { opacity: 1; transform: none; } }
+  @media (prefers-reduced-motion: reduce) { .fade { opacity: 1; transform: none; animation: none; } }
+
+  .back { display: inline-block; color: var(--muted); text-decoration: none; font-size: .82rem; letter-spacing: .04em; margin-bottom: var(--space); transition: color .15s ease; }
+  .back:hover, .back:focus-visible { color: var(--bright); }
+  .back:focus-visible { outline: 2px solid var(--accent); outline-offset: 3px; }
+  .back .arrow { color: var(--accent); }
+
+  .name { font-size: clamp(2rem, 6vw, 2.75rem); font-weight: 500; letter-spacing: -0.02em; color: var(--bright); margin: 0; }
+  .ident { color: var(--muted); margin: .5rem 0 0; font-size: 1rem; }
+  .lede { margin: 1.1rem 0 0; max-width: 52ch; color: var(--text); font-size: 1.02rem; }
+  .status-line { margin: 1.1rem 0 0; font-size: .82rem; letter-spacing: .04em; color: var(--muted); }
+  .status-line .status { color: var(--accent); }
+
+  section { margin-top: var(--space); }
+  .label { font-size: .72rem; text-transform: lowercase; letter-spacing: .18em; color: var(--accent); margin: 0 0 1.1rem; font-weight: 500; }
+
+  p { margin: 0 0 1rem; max-width: 60ch; }
+  p:last-child { margin-bottom: 0; }
+  a.inline { color: var(--text); text-decoration: none; border-bottom: 1px solid var(--hair); transition: border-color .15s ease, color .15s ease; }
+  a.inline:hover, a.inline:focus-visible { color: var(--bright); border-color: var(--accent); }
+  a.inline:focus-visible { outline: 2px solid var(--accent); outline-offset: 3px; }
+  strong { color: var(--bright); font-weight: 500; }
+
+  .rows { margin: 0; padding: 0; list-style: none; }
+  .rows li { display: flex; align-items: baseline; gap: 1rem; padding: .95rem 0; border-top: 1px solid var(--hair); }
+  .rows li:last-child { border-bottom: 1px solid var(--hair); }
+  .rows .main { flex: 1; min-width: 0; }
+  .rows .title { color: var(--bright); font-weight: 400; }
+  .rows .desc { color: var(--muted); font-size: .95rem; margin-top: .15rem; display: block; }
+  .rows .meta { color: var(--muted); font-size: .72rem; letter-spacing: .1em; text-transform: lowercase; white-space: nowrap; padding-top: .1rem; }
+  .rows .meta.done { color: var(--accent); }
+
+  code { font-family: "SF Mono", ui-monospace, Menlo, Consolas, monospace; font-size: .86em; color: var(--text); }
+  pre { margin: 0 0 1rem; padding: 1.1rem 1.25rem; border: 1px solid var(--hair); overflow-x: auto; background: transparent; }
+  pre code { font-size: .82rem; line-height: 1.7; color: var(--text); }
+  pre .c { color: var(--muted); }
+
+  footer { margin-top: var(--space); padding-top: 1.1rem; border-top: 1px solid var(--hair); color: var(--muted); font-size: .9rem; }
+  footer a { color: var(--muted); text-decoration: none; transition: color .15s ease; }
+  footer a:hover, footer a:focus-visible { color: var(--bright); }
+</style>
+</head>
+<body>
+<main class="fade">
+  <a class="back" href="https://seanlindsay.xyz"><span class="arrow" aria-hidden="true">←</span> Sean Lindsay</a>
+
+  <header>
+    <h1 class="name">Nightcrew</h1>
+    <p class="ident">autonomous spec-to-PR build agent · Python</p>
+    <p class="lede">An overnight build agent that turns spec items into pull requests, and hard-blocks every one of them behind a verification gate so that no PR ships unverified.</p>
+    <p class="status-line">v0.1.0 · MIT · <span class="status">built and running nightly, preparing for public release</span></p>
+  </header>
+
+  <section aria-labelledby="why-label">
+    <h2 class="label" id="why-label">Why it exists</h2>
+    <p>I built Nightcrew because I wanted an agent that could build from my backlogs overnight without me having to trust its word that the work is done. Coding agents are happy to open a pull request and declare success, and I found that checking those claims by hand costs almost as much as writing the code myself. Nightcrew inverts that: the pull request that lands in front of me in the morning carries its own proof, a table that maps every acceptance criterion to concrete evidence in the diff, backed by an independent re-run of the tests.</p>
+    <p>It is deliberately opinionated. This is how I run it; fork it and make it yours.</p>
+  </section>
+
+  <section aria-labelledby="start-label">
+    <h2 class="label" id="start-label">Quick start</h2>
+    <pre><code><span class="c"># clone and install</span>
+git clone https://github.com/SeanL128/nightcrew && cd nightcrew && uv sync
+<span class="c"># enroll a repo (runs its tests live, refuses repos where they fail)</span>
+uv run nightcrew enroll /path/to/your/repo
+<span class="c"># one full pass: pick → plan → build → gate → PR</span>
+uv run nightcrew run</code></pre>
+    <p>Requires Python 3.11+, uv, git, an authenticated <code>gh</code> CLI, and at least one dispatch backend (the <code>claude</code> or <code>codex</code> CLI, or an <code>OPENROUTER_API_KEY</code>).</p>
+  </section>
+
+  <section aria-labelledby="config-label">
+    <h2 class="label" id="config-label">Configuration</h2>
+    <p>Two files. Each enrolled repo carries a <code>nightcrew.yaml</code> holding its test command and spec items, and one <code>fleet.json</code> describes the repos, the dispatch roles, and the spending caps.</p>
+    <ul class="rows">
+      <li>
+        <span class="main">
+          <span class="title"><code>config.test_cmd</code></span>
+          <span class="desc">The repo's test command, run live at enrollment and re-run independently by the gate on every build.</span>
+        </span>
+        <span class="meta">required</span>
+      </li>
+      <li>
+        <span class="main">
+          <span class="title"><code>items[]</code></span>
+          <span class="desc">Spec items with an id, a description, acceptance criteria, and dependencies. Items with fewer than two real criteria are skipped as underspecified, not guessed at.</span>
+        </span>
+        <span class="meta">required</span>
+      </li>
+      <li>
+        <span class="main">
+          <span class="title"><code>dispatch.roles</code></span>
+          <span class="desc">Per-role backend: a command template (claude -p, codex exec, any CLI) or an OpenRouter model. The gate refuses to run when the judge and builder resolve to the same model family.</span>
+        </span>
+        <span class="meta">fleet.json</span>
+      </li>
+      <li>
+        <span class="main">
+          <span class="title"><code>caps</code></span>
+          <span class="desc">Daily and per-run dollar caps plus a max item count, enforced at the item boundary; a tripped cap stops the run and logs it.</span>
+        </span>
+        <span class="meta">fleet.json</span>
+      </li>
+    </ul>
+  </section>
+
+  <section aria-labelledby="usage-label">
+    <h2 class="label" id="usage-label">Usage</h2>
+    <ul class="rows">
+      <li>
+        <span class="main">
+          <span class="title"><code>nightcrew run</code></span>
+          <span class="desc">One full pass over the fleet: backfill PR outcomes, then per repo pick the first ready item, build it in an isolated worktree, gate it, allow one fix attempt, and open a PR only on a passing gate.</span>
+        </span>
+      </li>
+      <li>
+        <span class="main">
+          <span class="title"><code>nightcrew enroll &lt;repo&gt;</code></span>
+          <span class="desc">Validates the repo's spec, runs its tests live, and refuses enrollment if they fail, because a repo without working tests cannot be gated.</span>
+        </span>
+      </li>
+      <li>
+        <span class="main">
+          <span class="title"><code>nightcrew status</code></span>
+          <span class="desc">Per-repo outcome tallies, total recorded cost, and the last run's summary from the build log.</span>
+        </span>
+      </li>
+      <li>
+        <span class="main">
+          <span class="title"><code>nightcrew digest</code></span>
+          <span class="desc">The last N runs' item records, gate results and PR links, plus the PRs still awaiting review.</span>
+        </span>
+      </li>
+    </ul>
+    <p>The full command, flag, and file reference lives in <a class="inline" href="https://github.com/SeanL128/nightcrew/blob/main/docs/USAGE.md">docs/USAGE.md</a>.</p>
+  </section>
+
+  <section aria-labelledby="how-label">
+    <h2 class="label" id="how-label">How it works</h2>
+    <p>A run is a chain of small, inspectable stages rather than one prompted black box. The picker takes the first ready item from the spec, skipping anything underspecified, blocked by dependencies, or already covered by an open PR. The planner turns the item into a self-contained brief. The builder dispatches that brief to a configured backend inside a dedicated git worktree on branch <code>nightcrew/&lt;item&gt;</code>, with off-limits paths enforced on the staged diff.</p>
+    <p>Then the gate, which is the whole point. First the deterministic half: the tests are re-run independently in the worktree, because the builder's claim that they pass is not evidence, and a tamper check blocks any diff that removes or weakens tests. Only then does the evidence judge run, a model from a different family than the builder, which must map each acceptance criterion to concrete evidence in the diff and test output. Any unaddressed criterion blocks the PR. A blocked build gets exactly one fix dispatch and one re-gate before Nightcrew gives up and logs why.</p>
+    <p>A passing gate commits the worktree, pushes the branch, and opens a pull request whose body is the criterion-to-evidence table with the run's cost. Merging is always left to a human. On disk a run touches only a SQLite build log (<code>nightcrew.db</code> by default), temporary <code>nightcrew-wt-*</code> worktrees that are removed when each item completes, and the fleet file during enrollment; there is no installer, so uninstalling means deleting the clone and the log.</p>
+  </section>
+
+  <section aria-labelledby="status-label">
+    <h2 class="label" id="status-label">Status &amp; roadmap</h2>
+    <p>Nightcrew runs nightly on my own repos and has shipped real gated PRs; the public packaging is the current work.</p>
+    <ul class="rows">
+      <li><span class="main"><span class="title">Full pipeline: pick → plan → build → gate → fix → PR</span></span><span class="meta done">Done</span></li>
+      <li><span class="main"><span class="title">Hybrid gate: independent test re-run, tamper check, cross-family evidence judge</span></span><span class="meta done">Done</span></li>
+      <li><span class="main"><span class="title">Fleet CLI: enroll / run / status / digest with a SQLite build log and dollar caps</span></span><span class="meta done">Done</span></li>
+      <li><span class="main"><span class="title">Portable scheduling recipes: GitHub Actions, cron, systemd</span></span><span class="meta done">Done</span></li>
+      <li><span class="main"><span class="title">First public release (v0.1.0)</span></span><span class="meta">In progress</span></li>
+      <li><span class="main"><span class="title">Value learning and a trust ratchet, gated on real outcome data</span></span><span class="meta">Planned</span></li>
+    </ul>
+  </section>
+
+  <footer>
+    Built by Sean Lindsay · <a href="https://seanlindsay.xyz">seanlindsay.xyz</a> · <a href="https://github.com/SeanL128/nightcrew">Repo</a> · MIT
+  </footer>
+</main>
+</body>
+</html>
