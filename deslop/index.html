@@ -1,0 +1,145 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>deslop — remove Claude-isms from model output · Sean Lindsay</title>
+<meta name="description" content="A Claude Code plugin that removes the stock phrases, verbal tics, and behavioral reflexes of AI-generated prose while keeping the substance intact." />
+<style>
+  :root {
+    --bg: #0d0d0c;
+    --text: #e8e6e1;
+    --muted: #7a7873;
+    --hair: #2a2926;
+    --bright: #ffffff;
+    --accent: #8a8f86; /* single muted control — never add a second accent */
+    --space: clamp(2.25rem, 6vh, 4.5rem);
+  }
+  * { box-sizing: border-box; }
+  html { -webkit-text-size-adjust: 100%; }
+  body {
+    margin: 0;
+    background: var(--bg);
+    color: var(--text);
+    font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
+    font-size: 17px;
+    line-height: 1.5;
+    -webkit-font-smoothing: antialiased;
+    padding: var(--space) clamp(2rem, 8vw, 7rem);
+  }
+  main { width: 100%; max-width: 720px; margin: 0 auto; }
+
+  /* Entrance: whole page rises once, skipped under reduced-motion. Garnish, never a gate. */
+  .fade { opacity: 0; transform: translateY(6px); animation: rise .5s ease forwards; }
+  @keyframes rise { to { opacity: 1; transform: none; } }
+  @media (prefers-reduced-motion: reduce) { .fade { opacity: 1; transform: none; animation: none; } }
+
+  .back { display: inline-block; color: var(--muted); text-decoration: none; font-size: .82rem; letter-spacing: .04em; margin-bottom: var(--space); transition: color .15s ease; }
+  .back:hover, .back:focus-visible { color: var(--bright); }
+  .back:focus-visible { outline: 2px solid var(--accent); outline-offset: 3px; }
+  .back .arrow { color: var(--accent); }
+
+  .name { font-size: clamp(2rem, 6vw, 2.75rem); font-weight: 500; letter-spacing: -0.02em; color: var(--bright); margin: 0; }
+  .ident { color: var(--muted); margin: .5rem 0 0; font-size: 1rem; }
+  .lede { margin: 1.1rem 0 0; max-width: 52ch; color: var(--text); font-size: 1.02rem; }
+  .status-line { margin: 1.1rem 0 0; font-size: .82rem; letter-spacing: .04em; color: var(--muted); }
+  .status-line .status { color: var(--accent); }
+
+  section { margin-top: var(--space); }
+  .label { font-size: .72rem; text-transform: lowercase; letter-spacing: .18em; color: var(--accent); margin: 0 0 1.1rem; font-weight: 500; } /* lowercase matches the live site's label grammar */
+
+  p { margin: 0 0 1rem; max-width: 60ch; }
+  p:last-child { margin-bottom: 0; }
+  a.inline { color: var(--text); text-decoration: none; border-bottom: 1px solid var(--hair); transition: border-color .15s ease, color .15s ease; }
+  a.inline:hover, a.inline:focus-visible { color: var(--bright); border-color: var(--accent); }
+  a.inline:focus-visible { outline: 2px solid var(--accent); outline-offset: 3px; }
+  strong { color: var(--bright); font-weight: 500; }
+
+  /* Rows — the portfolio's list grammar, reused for config keys / steps / roadmap. NOT cards. */
+  .rows { margin: 0; padding: 0; list-style: none; }
+  .rows li { display: flex; align-items: baseline; gap: 1rem; padding: .95rem 0; border-top: 1px solid var(--hair); }
+  .rows li:last-child { border-bottom: 1px solid var(--hair); }
+  .rows .main { flex: 1; min-width: 0; }
+  .rows .title { color: var(--bright); font-weight: 400; }
+  .rows .desc { color: var(--muted); font-size: .95rem; margin-top: .15rem; display: block; }
+  .rows .meta { color: var(--muted); font-size: .72rem; letter-spacing: .1em; text-transform: lowercase; white-space: nowrap; padding-top: .1rem; }
+  .rows .meta.done { color: var(--accent); }
+
+  code { font-family: "SF Mono", ui-monospace, Menlo, Consolas, monospace; font-size: .86em; color: var(--text); }
+  pre { margin: 0 0 1rem; padding: 1.1rem 1.25rem; border: 1px solid var(--hair); overflow-x: auto; background: transparent; } /* hairline rule, no radius, transparent — the one sanctioned box */
+  pre code { font-size: .82rem; line-height: 1.7; color: var(--text); }
+  pre .c { color: var(--muted); }
+
+  footer { margin-top: var(--space); padding-top: 1.1rem; border-top: 1px solid var(--hair); color: var(--muted); font-size: .9rem; }
+  footer a { color: var(--muted); text-decoration: none; transition: color .15s ease; }
+  footer a:hover, footer a:focus-visible { color: var(--bright); }
+</style>
+</head>
+<body>
+<main class="fade">
+  <a class="back" href="https://seanlindsay.xyz"><span class="arrow" aria-hidden="true">←</span> Sean Lindsay</a>
+
+  <header>
+    <h1 class="name">deslop</h1>
+    <p class="ident">Claude Code plugin · skill + session-start hook</p>
+    <p class="lede">Removes Claude-isms, the stock phrases, verbal tics, and behavioral reflexes that make prose read as AI-generated. It bans the phrasing, never the substance, so real corrections, real tradeoffs, and honest uncertainty always survive.</p>
+    <p class="status-line">v0.1.0 · MIT · <span class="status">released, installable from the public marketplace</span></p>
+  </header>
+
+  <section aria-labelledby="why-label">
+    <h2 class="label" id="why-label">Why it exists</h2>
+    <p>I made deslop as the companion to <a class="inline" href="https://seanlindsay.xyz/shush">shush</a>, because I noticed that verbosity and voice are two separate problems that need two separate fixes. Shush governs how much a model says, but even a short response can still sound unmistakably like an AI wrote it, full of phrases like "sit with it" and "load-bearing", theatrical concessions the moment you push back, and invented quoted labels for ordinary ideas. Deslop <strong>bans the phrasing while keeping the substance</strong>, which means the model still corrects you when you are wrong and still names the real caveat, just without the performance around it.</p>
+  </section>
+
+  <section aria-labelledby="start-label">
+    <h2 class="label" id="start-label">Quick start</h2>
+    <pre><code><span class="c"># inside Claude Code</span>
+/plugin marketplace add SeanL128/deslop
+/plugin install deslop@deslop</code></pre>
+    <p>A session-start hook keeps deslop active in every session automatically, with no CLAUDE.md edits needed. Turn it off with <code>stop deslop</code>.</p>
+  </section>
+
+  <section aria-labelledby="config-label">
+    <h2 class="label" id="config-label">Configuration</h2>
+    <ul class="rows">
+      <li>
+        <span class="main"><span class="title"><code>/deslop lite</code></span><span class="desc">Hard-banned phrases and the capitulation reflex only; pattern rules relaxed.</span></span>
+        <span class="meta">level</span>
+      </li>
+      <li>
+        <span class="main"><span class="title"><code>/deslop full</code></span><span class="desc">Phrase bans, pattern rules, and behavioral bans all enforced. Default.</span></span>
+        <span class="meta">level</span>
+      </li>
+      <li>
+        <span class="main"><span class="title"><code>/deslop ultra</code></span><span class="desc">Full, plus zero tolerance on borderline metaphor; the plain literal sentence always wins.</span></span>
+        <span class="meta">level</span>
+      </li>
+      <li>
+        <span class="main"><span class="title"><code>stop deslop</code></span><span class="desc">Reverts to normal output until re-enabled.</span></span>
+        <span class="meta">off switch</span>
+      </li>
+    </ul>
+  </section>
+
+  <section aria-labelledby="how-label">
+    <h2 class="label" id="how-label">How it works</h2>
+    <p>There are two pieces, and neither one modifies any file on your machine beyond the plugin's own install directory. A <strong>skill</strong> carries the full ruleset in two species: hard-banned phrases that are dead on arrival in any form ("sit with it", "load-bearing", "footgun", superlative flattery, coined quoted labels), and pattern rules that target the reflex rather than the word, so "scope", "seam", "shape", "canonical", and "sanity check" stay legal in plain literal use while the reflexive metaphorical use is banned. The skill also bans three behavioral tics: capitulating on pushback without new information, the "it's not just X, it's Y" construction, and closing option-tour menus. A <strong>SessionStart hook</strong> then injects a distilled version of that ruleset into every session's context, and that is what makes it reliably always on, as description-based skill matching alone fires inconsistently. Uninstalling the plugin removes everything; there is no other state to undo.</p>
+  </section>
+
+  <section aria-labelledby="status-label">
+    <h2 class="label" id="status-label">Status &amp; roadmap</h2>
+    <p>Deslop is released and installable from the public marketplace. Ongoing work is growing the ban list as real sessions surface more slop.</p>
+    <ul class="rows">
+      <li><span class="main"><span class="title">Hard-ban list, pattern rules, and behavioral bans with intensity levels</span></span><span class="meta done">Done</span></li>
+      <li><span class="main"><span class="title">Always-on SessionStart hook</span></span><span class="meta done">Done</span></li>
+      <li><span class="main"><span class="title">Plugin packaging and public marketplace install</span></span><span class="meta done">Done</span></li>
+      <li><span class="main"><span class="title">Tuning the ban list against real long-running sessions</span></span><span class="meta">Planned</span></li>
+    </ul>
+  </section>
+
+  <footer>
+    Built by Sean Lindsay · <a href="https://seanlindsay.xyz">seanlindsay.xyz</a> · <a href="https://github.com/SeanL128/deslop">Repo</a> · MIT
+  </footer>
+</main>
+</body>
+</html>
